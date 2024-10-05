@@ -1,30 +1,19 @@
-const http = require("http");
-const url = require("url");
-const fs = require("fs");
+const express = require("express");
+const app = express();
+const path = require("path");
 
-http
-  .createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    let parsedPathName = parsedUrl.pathname;
-    if (parsedPathName === "/") {
-      parsedPathName = "/index.html";
-    } else if (parsedPathName === "/about") {
-      parsedPathName = "/about.html";
-    } else if (parsedPathName === "/contact-me") {
-      parsedPathName = "/contact-me.html";
-    } else {
-      parsedPathName = "/404.html";
-    }
-    const filePath = "." + parsedPathName;
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(404, { "Content-Type": "text/html" });
-      } else {
-        res.writeHead(200, { "Content-Type": "text/html" });
-      }
+app.use(express.static(__dirname));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "about.html"));
+});
+app.get("/contact-me", (req, res) => {
+  res.sendFile(path.join(__dirname, "contact-me.html"));
+});
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "404.html"));
+});
 
-      res.write(data);
-      return res.end();
-    });
-  })
-  .listen(8080);
+app.listen(8080);
